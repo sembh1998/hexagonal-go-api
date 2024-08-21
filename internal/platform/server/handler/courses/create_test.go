@@ -46,7 +46,7 @@ func TestHandler_Create(t *testing.T) {
 
 	t.Run("given a valid request it returns 201", func(t *testing.T) {
 		createCourseReq := createRequest{
-			ID:       "asdfasd",
+			ID:       "01917342-4632-7bdb-9f64-2d700bd38813",
 			Name:     "demo",
 			Duration: "3 hours",
 		}
