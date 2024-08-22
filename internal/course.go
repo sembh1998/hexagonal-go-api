@@ -20,6 +20,10 @@ type CourseID struct {
 	value string
 }
 
+func (id CourseID) String() string {
+	return id.value
+}
+
 func NewCourseID(value string) (CourseID, error) {
 	v, err := uuid.Parse(value)
 	if err != nil {
@@ -36,6 +40,10 @@ type CourseName struct {
 	value string
 }
 
+func (name CourseName) String() string {
+	return name.value
+}
+
 func NewCourseName(value string) (CourseName, error) {
 	if len(value) == 0 {
 		return CourseName{}, fmt.Errorf("%w: %s", ErrInvalidCourseName, value)
@@ -49,6 +57,10 @@ var ErrInvalidCourseDuration = errors.New("invalid Course Duration")
 
 type CourseDuration struct {
 	value string
+}
+
+func (duration CourseDuration) String() string {
+	return duration.value
 }
 
 func NewCourseDuration(value string) (CourseDuration, error) {
@@ -89,14 +101,14 @@ func NewCourse(id, name, duration string) (Course, error) {
 	}, nil
 }
 
-func (c Course) ID() string {
-	return c.id.value
+func (c Course) ID() CourseID {
+	return c.id
 }
 
-func (c Course) Name() string {
-	return c.name.value
+func (c Course) Name() CourseName {
+	return c.name
 }
 
-func (c Course) Duration() string {
-	return c.duration.value
+func (c Course) Duration() CourseDuration {
+	return c.duration
 }
