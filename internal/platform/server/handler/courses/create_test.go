@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sembh1998/hexagonal-go-api/internal/creating"
+	"github.com/sembh1998/hexagonal-go-api/internal/platform/bus/inmemory"
 	"github.com/sembh1998/hexagonal-go-api/internal/platform/storage/storagemocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -20,10 +21,15 @@ func TestHandler_Create(t *testing.T) {
 	courseRepository.On("Save", mock.Anything, mock.AnythingOfType("mooc.Course")).Return(nil)
 
 	courseService := creating.NewCourseService(courseRepository)
+	var (
+		commandBus = inmemory.NewCommandBus()
+	)
+	createCoursecommandHandler := creating.NewCourseCommandHandler(courseService)
+	commandBus.Register(creating.CourseCommandType, createCoursecommandHandler)
 
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
-	r.POST("/courses", CreateHandler(courseService))
+	r.POST("/courses", CreateHandler(commandBus))
 
 	t.Run("given an invalid request it returns 400", func(t *testing.T) {
 		createCourseReq := createRequest{

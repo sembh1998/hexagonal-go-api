@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	mooc "github.com/sembh1998/hexagonal-go-api/internal"
 	"github.com/sembh1998/hexagonal-go-api/internal/creating"
+	"github.com/sembh1998/hexagonal-go-api/kit/command"
 )
 
 type createRequest struct {
@@ -15,7 +16,7 @@ type createRequest struct {
 	Duration string `json:"duration" binding:"required"`
 }
 
-func CreateHandler(creatingCourseService creating.CourseService) gin.HandlerFunc {
+func CreateHandler(commandBus command.Bus) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req createRequest
 		if err := ctx.BindJSON(&req); err != nil {
@@ -23,7 +24,13 @@ func CreateHandler(creatingCourseService creating.CourseService) gin.HandlerFunc
 			return
 		}
 
-		if err := creatingCourseService.CreateCourse(ctx, req.ID, req.Name, req.Duration); err != nil {
+		err := commandBus.Dispatch(ctx, creating.NewCourseCommand(
+			req.ID,
+			req.Name,
+			req.Duration,
+		))
+
+		if err != nil {
 			switch {
 			case errors.Is(err, mooc.ErrInvalidCourseID), errors.Is(err, mooc.ErrInvalidCourseName), errors.Is(err, mooc.ErrInvalidCourseDuration):
 				ctx.JSON(http.StatusBadRequest, err.Error())
